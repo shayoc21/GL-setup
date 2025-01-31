@@ -19,3 +19,9 @@ TODO:
 	- Clean up code, massively   
 	- Fix indentation   
 	- Add some inline documentation // though not really necessary as this is relatively simple, it's still good practice   
+
+### To build:   
+
+On linux: just run ./build with gcc.   
+Windows: I have no idea, I don't code on windows so I have no need for a windows build of this. I reckon its the same as all other GLFW/GLEW projects though in Visual studio (just saying "visual studio" makes me sick)
+
