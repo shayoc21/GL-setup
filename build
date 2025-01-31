@@ -1,3 +1,3 @@
 #!/bin/bash
-gcc -O0 -g -fsanitize=address,undefined -o main main.c shader.c maths.c render.c object.c -lm -I/usr/include/GLFW -I/usr/include/GL -lGL -lglfw -lGLEW
+gcc -O0 -g -fsanitize=address,undefined -o main main.c shader.c maths.c render.c object.c camera.c -lm -I/usr/include/GLFW -I/usr/include/GL -lGL -lglfw -lGLEW
 

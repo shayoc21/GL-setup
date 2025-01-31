@@ -31,6 +31,7 @@ vec3f vec3fSubtract(vec3f vec1, vec3f vec2);
 vec3f vec3fAdd(vec3f vec1, vec3f vec2);
 vec3f vec3fNormalize(vec3f vector);
 vec3f vec3fCross(vec3f vec1, vec3f vec2);
+float vec3fLength(vec3f* vector);
 float vec3fDot(vec3f vec1, vec3f vec2);
 
 float radians(float degrees);

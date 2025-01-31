@@ -5,6 +5,7 @@
 #include "maths.h"
 #include "render.h"
 #include "object.h"
+#include "camera.h"
 
 float vertices[120] = 
 {
@@ -61,18 +62,6 @@ unsigned int indices[36]  =
     20, 21, 22, 22, 21, 23
 };
 
-struct camera
-{
-  vec3f cameraPos;
-  vec3f cameraFront;
-  vec3f cameraUp;
-  vec3f cameraRight;
-  float yaw;
-  float pitch;
-};
-typedef struct camera camera;
-camera playerCam;
-
 float xsens = 0.45f;
 float ysens = 0.45f;
 
@@ -82,6 +71,7 @@ struct
 } session;
 
 int pPressed = 0;
+int oPressed = 0;
 
 enum
 {
@@ -110,62 +100,72 @@ void getInput(GLFWwindow* window)
     pPressed = 1;
     wireframe = (wireframe == FILL) ? WIREFRAME : FILL;
     glPolygonMode(GL_FRONT_AND_BACK, wireframe);
+
+		printf("-- PRINTING DIAGNOSTICS --\n\
+						 - POS =  %f, %f, %f 	  - \n\
+						 - DIR =  %f, %f, %f    - \n\
+						--------------------------\n", 
+						currentCamera->position.x, currentCamera->position.y, currentCamera->position.z,
+						currentCamera->direction.x, currentCamera->direction.y, currentCamera->direction.z); 
+		printf("Front: (%f, %f, %f)\n", currentCamera->front.x, currentCamera->front.y, currentCamera->front.z);
+		printf("Right: (%f, %f, %f)\n", currentCamera->right.x, currentCamera->right.y, currentCamera->right.z);
+		printf("Up: (%f, %f, %f)\n", currentCamera->up.x, currentCamera->up.y, currentCamera->up.z);	
   }
   if (glfwGetKey(window, GLFW_KEY_P) == GLFW_RELEASE)
   {
     pPressed = 0;
   }
-  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
   {
-    playerCam.cameraPos.x += 0.05f * playerCam.cameraFront.x;
-    playerCam.cameraPos.y += 0.05f * playerCam.cameraFront.y;
-    playerCam.cameraPos.z += 0.05f * playerCam.cameraFront.z;
+		currentCamera->position.x += 0.05f * currentCamera->front.x;
+		currentCamera->position.y += 0.05f * currentCamera->front.y;
+		currentCamera->position.z += 0.05f * currentCamera->front.z;
   }
   if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
   {
-    playerCam.cameraPos.x -= 0.05f * playerCam.cameraFront.x;
-    playerCam.cameraPos.y -= 0.05f * playerCam.cameraFront.y;
-    playerCam.cameraPos.z -= 0.05f * playerCam.cameraFront.z;
+		currentCamera->position.x -= 0.05f * currentCamera->front.x;
+		currentCamera->position.y -= 0.05f * currentCamera->front.y;
+		currentCamera->position.z -= 0.05f * currentCamera->front.z;
   }
   if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
   {
-    playerCam.cameraPos.x += 0.05f * playerCam.cameraRight.x;
-    playerCam.cameraPos.y += 0.05f * playerCam.cameraRight.y;
-    playerCam.cameraPos.z += 0.05f * playerCam.cameraRight.z;
+		currentCamera->position.x += 0.05f * currentCamera->right.x;
+		currentCamera->position.y += 0.05f * currentCamera->right.y;
+		currentCamera->position.z += 0.05f * currentCamera->right.z;
   }
   if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
   {
-    playerCam.cameraPos.x -= 0.05f * playerCam.cameraRight.x;
-    playerCam.cameraPos.y -= 0.05f * playerCam.cameraRight.y;
-    playerCam.cameraPos.z -= 0.05f * playerCam.cameraRight.z;
+		currentCamera->position.x -= 0.05f * currentCamera->right.x;
+		currentCamera->position.y -= 0.05f * currentCamera->right.y;
+		currentCamera->position.z -= 0.05f * currentCamera->right.z;
   }
   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
   {
-    playerCam.cameraPos.x += 0.05f * playerCam.cameraUp.x;
-    playerCam.cameraPos.y += 0.05f * playerCam.cameraUp.y;
-    playerCam.cameraPos.z += 0.05f * playerCam.cameraUp.z;
+		currentCamera->position.x += 0.05f * currentCamera->up.x;
+		currentCamera->position.y += 0.05f * currentCamera->up.y;
+		currentCamera->position.z += 0.05f * currentCamera->up.z;
   }
   if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
   {
-    playerCam.cameraPos.x -= 0.05f * playerCam.cameraUp.x;
-    playerCam.cameraPos.y -= 0.05f * playerCam.cameraUp.y;
-    playerCam.cameraPos.z -= 0.05f * playerCam.cameraUp.z;
+		currentCamera->position.x -= 0.05f * currentCamera->up.x;
+		currentCamera->position.y -= 0.05f * currentCamera->up.y;
+		currentCamera->position.z -= 0.05f * currentCamera->up.z;
   }
   if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
   {
-    playerCam.yaw -= xsens;
+    currentCamera->yaw -= xsens;
   }
   if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
   {
-    playerCam.yaw += xsens;
+    currentCamera->yaw += xsens;
   }
-  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && playerCam.pitch < 80.0f)
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && currentCamera->pitch < 80.0f)
   {
-    playerCam.pitch += ysens;
+    currentCamera->pitch += ysens;
   }
-  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && playerCam.pitch > -80.0f)
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && currentCamera->pitch > -80.0f)
   {
-    playerCam.pitch -= ysens;
+    currentCamera->pitch -= ysens;
   }
 }
 
@@ -204,12 +204,6 @@ int glInit()
   return 1;
 }
 
-vec3f cubePositions[2] =
-{
-  {0.0f, 0.0f, 0.0f},
-  {2.0f, 3.0f, 0.0f}
-};
-
 int main(int argc, char** argv)
 {
   if (!glInit())
@@ -217,28 +211,38 @@ int main(int argc, char** argv)
     printf("--CLOSING PROGRAM--");
     return 0;
   }
+	
+	Camera camera = {0};
+	currentCamera = &camera;
+	
+	vec3f position = {3.0f, 0.0f,  0.0f};
+	vec3f direction = {0.0f, 0.0f, -1.0f};
+	vec3f up = {0.0f, 1.0f, 0.0f};
+	cameraInit(currentCamera, position, direction, 60.0f);
 
-	mat4 view = {0};
+	Camera camera2 = {0};
+	currentCamera = &camera2;
+	cameraInit(currentCamera, position, direction, 60.0f);
+	currentCamera = &camera;
+
 	mat4 model = {0};
 	mat4 model2 = {0};
-	mat4 projection = perspectiveMat4(radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+	mat4 model3 = {0};
 	object* cubeOne;
 	cubeOne = (object*)malloc(sizeof(object));
 	objectInit(cubeOne, "shaders/shaderSource.glsl", 
 						 "textures/tex.jpg", vertices, indices,
-						 120, 36, &view, &model);
+						 120, 36, &model, 1);
 	object* cubeTwo;
 	cubeTwo = (object*)malloc(sizeof(object));
 	objectInit(cubeTwo, "shaders/shaderSource.glsl",
 						 "textures/tex.png", vertices, indices,
-						 120, 36, &view, &model2);
-
-  playerCam.cameraPos   = (vec3f){0.0f, 0.0f, 3.0f};
-  playerCam.cameraFront = (vec3f){0.0f, 0.0f, -1.0f};
-  playerCam.cameraUp    = (vec3f){0.0f, 1.0f, 0.0f};
-  playerCam.cameraRight = vec3fCross(playerCam.cameraFront, playerCam.cameraUp);
-  playerCam.yaw = -90.0f;
-  playerCam.pitch = 0.0f;
+						 120, 36, &model2, 1);
+	object* cubeThree;
+	cubeThree = (object*)malloc(sizeof(object));
+	objectInit(cubeThree, "shaders/shaderSource.glsl",
+						 "textures/tex.png", vertices, indices,
+						 120, 36, &model3, 0);
 
   while (!glfwWindowShouldClose(session.window))
   {
@@ -246,22 +250,34 @@ int main(int argc, char** argv)
     // --   INPUT HANDLING   -- //
 
     getInput(session.window);
+		if (glfwGetKey(session.window, GLFW_KEY_O) == GLFW_PRESS && !oPressed)
+		{
+			currentCamera = (currentCamera == &camera) ? &camera2 : &camera;
+			oPressed = 1;
+		}
+		if (glfwGetKey(session.window, GLFW_KEY_O) == GLFW_RELEASE)
+		{
+			oPressed = 0;
+		}
 
     // --       RENDER       -- //
-    
 
-    playerCam.cameraRight = vec3fCross(playerCam.cameraFront, playerCam.cameraUp);
+    currentCamera->right = vec3fNormalize(vec3fCross(currentCamera->front, up));
     vec3f direction;
-    direction.x = cos(radians(playerCam.yaw)) * cos(radians(playerCam.pitch));
-    direction.y = sin(radians(playerCam.pitch));
-    direction.z = sin(radians(playerCam.yaw)) * cos(radians(playerCam.pitch));
-    playerCam.cameraFront = vec3fNormalize(direction);
+    direction.x = cos(radians(currentCamera->yaw)) * cos(radians(currentCamera->pitch));
+    direction.y = sin(radians(currentCamera->pitch));
+    direction.z = sin(radians(currentCamera->yaw)) * cos(radians(currentCamera->pitch));
+    currentCamera->front = vec3fNormalize(direction);
+		currentCamera->up = vec3fCross(currentCamera->front, currentCamera->right);
+		currentCamera->up.x = -currentCamera->up.x;
+		currentCamera->up.y = -currentCamera->up.y;
+		currentCamera->up.z = -currentCamera->up.z;
+		currentCamera->up = vec3fNormalize(currentCamera->up);
 
-    view = lookMat4(
-      playerCam.cameraPos, 
-      vec3fAdd(playerCam.cameraPos, playerCam.cameraFront), 
-      playerCam.cameraUp);
-   
+		currentCamera->view = lookMat4(currentCamera->position, 
+																	 vec3fAdd(currentCamera->position, currentCamera->front),
+																	 currentCamera->up);
+
     model = identityMat4();
     vec3f axis = {0.5f, 1.0f, 0.0f};
     model = mat4Rotate(model, radians(50.0f), axis);
@@ -269,9 +285,18 @@ int main(int argc, char** argv)
 		model2 = mat4Rotate(model2, radians(70.0f), axis);
 		model2 = mat4Multiply(translateMat4(model2, t), model2);
 
+		vec3f objectPos = 
+		{
+			currentCamera->position.x + currentCamera->front.x*5.0f,
+			currentCamera->position.y + currentCamera->front.y*5.0f,
+			currentCamera->position.z + currentCamera->front.z*5.0f
+		};
+		model3 = translateMat4(model3, objectPos);
+
     renderClear();
-    objectDraw(cubeOne, projection);
-		objectDraw(cubeTwo, projection);
+    objectDraw(cubeOne, currentCamera->projection);
+		objectDraw(cubeTwo, currentCamera->projection);
+		objectDraw(cubeThree, currentCamera->projection);
 
     // --    SWAP BUFFERS    -- //
 
@@ -280,8 +305,7 @@ int main(int argc, char** argv)
   }
 	objectDestroy(cubeOne);
 	objectDestroy(cubeTwo);
-	free(cubeOne);
-	free(cubeTwo);
+	objectDestroy(cubeThree);
   glfwTerminate();
   return 1;
 }  
